@@ -162,8 +162,24 @@ export default class S3Uploader {
           return Promise.reject(new Error('Upload cancelled by user'))
         }
 
+        this.updatePercentComplete()
+
         return this.uploadPart()
       })
+  }
+
+  updatePercentComplete = () => {
+    const now = new Date()
+    const diff = (now - this.startedAt) / 1000
+
+    const bytesUploaded = this.partsFinishedInSession * this.minPartSize
+    const bytesPerSecond = bytesUploaded / diff
+
+    const bytesRemaining = this.availableIndexes.length * this.minPartSize
+    const secsRemaining = bytesRemaining / bytesPerSecond
+
+    this.eta = new Date(now.getTime() + secsRemaining * 1000)
+    this.percentComplete = bytesUploaded / this.fileSize
   }
 
   handlePing = () => {
