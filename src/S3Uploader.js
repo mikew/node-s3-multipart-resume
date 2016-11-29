@@ -42,20 +42,24 @@ export default class S3Uploader {
           this.availableIndexes.push(i)
         }
 
-        return this.ensureUploadId()
-      })
-      .then(uploadId => {
-        this.uploadId = uploadId
-        const promises = []
-
-        for (let i = 0; i < this.concurrent; i++) {
-          promises.push(this.uploadPart())
+        if (this.availableIndexes.length === 0) {
+          return Promise.resolve()
         }
 
-        return Promise.all(promises)
+        return this.ensureUploadId()
+          .then(uploadId => {
+            this.uploadId = uploadId
+            const promises = []
+
+            for (let i = 0; i < this.concurrent; i++) {
+              promises.push(this.uploadPart())
+            }
+
+            return Promise.all(promises)
+          })
+          .then(() => this.completeMultipartUpload())
+          .then(_ => this)
       })
-      .then(() => this.completeMultipartUpload())
-      .then(_ => this)
   }
 
   completeMultipartUpload = () => {
