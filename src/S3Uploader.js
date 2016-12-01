@@ -146,7 +146,7 @@ export default class S3Uploader {
             }
 
             this.partsFinishedInSession++
-            this.parts.push({
+            this.parts = this.parts.concat({
               PartNumber: index + 1,
               ...data,
             })
