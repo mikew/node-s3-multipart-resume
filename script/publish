@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+./script/lint
+./script/compile
+npm publish

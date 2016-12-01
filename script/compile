@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+
+babel --out-dir lib/ src/
