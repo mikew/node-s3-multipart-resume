@@ -178,8 +178,12 @@ export default class S3Uploader {
     const bytesRemaining = this.availableIndexes.length * this.minPartSize
     const secsRemaining = bytesRemaining / bytesPerSecond
 
-    this.eta = new Date(now.getTime() + secsRemaining * 1000)
-    this.percentComplete = bytesUploaded / this.fileSize
+    this.eta = new Date(now.getTime() + (secsRemaining * 1000))
+    this.percentComplete = (bytesUploaded / this.fileSize) * 100
+
+    if (isNaN(this.percentComplete)) {
+      this.percentComplete = 0
+    }
   }
 
   handlePing = () => {
