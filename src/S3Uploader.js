@@ -12,6 +12,7 @@ export default class S3Uploader {
   concurrent = 3
   isCancelled = false
   partsFinishedInSession = 0
+  maxPartRetries = 3
 
   upload = () => {
     this.partsFinishedInSession = 0
@@ -122,39 +123,47 @@ export default class S3Uploader {
 
     const start = this.minPartSize * index
     const end = start + this.minPartSize - 1
+    let attemptNumber = 1
+    const attemptUpload = buffer => {
+      const params = {
+        Bucket: this.Bucket,
+        Key: this.Key,
+        PartNumber: index + 1,
+        UploadId: this.uploadId,
+        Body: buffer,
+      }
+
+      return new Promise((resolve, reject) => {
+        this.client.uploadPart(params, (err, data) => {
+          if (err) {
+            if (attemptNumber >= this.maxPartRetries) {
+              reject(err)
+
+              return
+            }
+
+            attemptNumber += 1
+
+            return attemptUpload(buffer)
+          }
+
+          this.partsFinishedInSession++
+          this.parts = this.parts.concat({
+            PartNumber: index + 1,
+            ...data,
+          })
+
+          resolve(data)
+        })
+      })
+    }
 
     return readStreamPromise(this.file, {
       prepareStream: this.prepareStream,
       start,
       end,
     })
-      .then(buffer => {
-        const params = {
-          Bucket: this.Bucket,
-          Key: this.Key,
-          PartNumber: index + 1,
-          UploadId: this.uploadId,
-          Body: buffer,
-        }
-
-        return new Promise((resolve, reject) => {
-          this.client.uploadPart(params, (err, data) => {
-            if (err) {
-              reject(err)
-
-              return
-            }
-
-            this.partsFinishedInSession++
-            this.parts = this.parts.concat({
-              PartNumber: index + 1,
-              ...data,
-            })
-
-            resolve(data)
-          })
-        })
-      })
+      .then(attemptUpload)
       .then(() => {
         if (this.isCancelled) {
           this.handlePing()
