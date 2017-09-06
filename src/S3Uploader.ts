@@ -243,6 +243,9 @@ export default class S3Uploader {
 
     this.lastProgress.bytesPerSecond = bytesPerSecond
     this.lastProgress.eta = new Date(now.valueOf() + (secsRemaining * 1000))
+    if (isNaN(this.lastProgress.eta.valueOf())) {
+      this.lastProgress.eta = new Date(now.valueOf() + 60 * 60 * 1000)
+    }
     this.lastProgress.percentComplete = bytesUploadedTotal / this.fileSize! * 100
 
     if (isNaN(this.lastProgress.percentComplete)) {
