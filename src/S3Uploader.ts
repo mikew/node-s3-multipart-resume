@@ -13,7 +13,7 @@ const defaultOptions: Partial<S3UploaderOptions> = {
   parts: [],
   concurrent: 3,
   maxPartRetries: 3,
-  onProgress: () => {}
+  onProgress: () => {},
 }
 
 export default class S3Uploader {
@@ -72,7 +72,6 @@ export default class S3Uploader {
         }
 
         if (this.availableIndexes.length === 0) {
-          console.log('looks like theres nothing left to upload')
           return Promise.resolve(this)
         }
 
@@ -95,7 +94,6 @@ export default class S3Uploader {
    */
   private ensureUploadId = (): Promise<string> => {
     if (this.options.uploadId) {
-      console.log(`Resuming upload ${this.options.uploadId}`)
       return Promise.resolve(this.options.uploadId)
     }
 
@@ -104,11 +102,7 @@ export default class S3Uploader {
       Key: this.options.Key,
     }
 
-    console.log('createMultipartUpload')
-    const req = this.options.client!.createMultipartUpload(params)
-    req.on('httpUploadProgress', () => { console.log('httpUploadProgress') })
-    req.on('httpDownloadProgress', () => { console.log('httpUploadProgress') })
-    return req.promise()
+    return this.options.client!.createMultipartUpload(params).promise()
       .then(x => {
         this.options.uploadId = x.UploadId
 
@@ -123,7 +117,6 @@ export default class S3Uploader {
    * @memberof S3Uploader
    */
   private startAllUploaders = () => {
-    console.log(`Kicking off ${this.options.concurrent} uploaders`)
     const promises: Promise<any>[] = []
 
     for (let i = 0; i < this.options.concurrent!; i++) {
@@ -164,7 +157,6 @@ export default class S3Uploader {
     const index = this.availableIndexes.shift()
 
     if (index == null) {
-      console.log('uploadPart nothing left to upload')
       return Promise.resolve()
     }
 
@@ -208,8 +200,6 @@ export default class S3Uploader {
       UploadId: this.options.uploadId!,
       Body: buffer,
     }
-
-    console.log(`Part ${index + 1} / ${this.numParts} attempt ${attemptNumber}`)
 
     return this.options.client!.uploadPart(params).promise()
       .then((data: UploadPartOutput) => {
