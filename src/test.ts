@@ -9,7 +9,7 @@ try {
   console.error(err)
 }
 
-import S3Uploader from './index'
+import { S3Uploader } from './index'
 
 const timeout = undefined
 
