@@ -228,18 +228,18 @@ export class S3Uploader {
 
     const diff = (now.valueOf() - this.startedAt!.valueOf()) / 1000
 
+    const bytesUploadedTotal = Math.min(
+      this.options.parts!.length * this.options.minPartSize!,
+      this.fileSize!
+    )
+
     const bytesUploadedSession = Math.min(
       this.partsFinishedInSession * this.options.minPartSize!,
       this.fileSize!
     )
     const bytesPerSecond = bytesUploadedSession / diff
-    const bytesRemaining = this.fileSize! - bytesUploadedSession
+    const bytesRemaining = this.fileSize! - bytesUploadedTotal
     const secsRemaining = bytesRemaining / bytesPerSecond
-
-    const bytesUploadedTotal = Math.min(
-      this.options.parts!.length * this.options.minPartSize!,
-      this.fileSize!
-    )
 
     this.lastProgress.bytesPerSecond = bytesPerSecond
     this.lastProgress.eta = new Date(now.valueOf() + (secsRemaining * 1000))
