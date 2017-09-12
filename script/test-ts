@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+
+./script/compile
+
+cd lib/
+node --inspect-brk test.js
+# node test.js

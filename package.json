@@ -1,6 +1,6 @@
 {
   "name": "s3-multipart-resume",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -9,12 +9,11 @@
   "keywords": [],
   "author": "Mike Wyatt <wyatt.mike@gmail.com>",
   "license": "MIT",
+  "types": "lib/index.d.ts",
   "devDependencies": {
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-stage-0": "^6.16.0",
-    "eslint": "^3.11.1",
-    "eslint-config-sst": "^1.0.2",
-    "eslint-plugin-babel": "^4.0.0",
-    "eslint-plugin-import": "^2.2.0"
-  }
+    "@types/node": "^8.0.26",
+    "aws-sdk": "^2.109.0",
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {}
 }
