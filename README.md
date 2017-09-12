@@ -2,6 +2,12 @@
 
 Multipart uploads to S3 that you can resume.
 
+## Installation
+
+```bash
+npm install --save s3-multipart-resume
+```
+
 ## Usage
 
 ```js
